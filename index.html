@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GENESIS — 采样阶段结构约束的生成建模研究</title>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+    options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root{--blue:#2563eb;--blue-d:#1d4ed8;--blue-l:#eff6ff;--blue-m:#bfdbfe;--dark:#0f172a;--text:#1e293b;--sub:#64748b;--light:#cbd5e1;--bg:#f8fafc;--white:#fff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;color:var(--text);background:var(--bg);line-height:1.7}
+.hero{background:linear-gradient(135deg,var(--blue-d) 0%,var(--blue) 100%);color:var(--white);padding:3.5rem 2rem 3rem;text-align:center}
+.hero h1{font-size:2.4rem;font-weight:700;letter-spacing:.04em}
+.hero .sub{font-size:1.05rem;opacity:.85;margin-top:.6rem;max-width:700px;margin-left:auto;margin-right:auto}
+.hero .badge{display:inline-block;margin-top:1.2rem;background:rgba(255,255,255,.18);border-radius:999px;padding:.3rem 1rem;font-size:.82rem}
+.nav-bar{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--light);display:flex;justify-content:center;gap:.2rem;padding:0 1rem;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow-x:auto}
+.nav-bar button{background:none;border:none;cursor:pointer;padding:.75rem 1.1rem;font-size:.88rem;color:var(--sub);white-space:nowrap;border-bottom:2.5px solid transparent;transition:all .15s}
+.nav-bar button:hover{color:var(--blue)}
+.nav-bar button.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.container{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.section{display:none}.section.active{display:block}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin:1.5rem 0}
+.card{background:var(--white);border:1px solid #e2e8f0;border-radius:10px;padding:1.3rem 1.4rem;transition:box-shadow .2s,border-color .2s;cursor:pointer}
+.card:hover{border-color:var(--blue-m);box-shadow:0 4px 12px rgba(37,99,235,.1)}
+.card .num{font-size:.75rem;color:var(--blue);font-weight:700;margin-bottom:.3rem}
+.card h3{font-size:1.05rem;color:var(--dark);margin-bottom:.4rem}
+.card p{font-size:.85rem;color:var(--sub)}
+.reading-order{background:var(--blue-l);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:1.2rem 1.5rem;margin:1.8rem 0}
+.reading-order h3{color:var(--blue-d);font-size:1rem;margin-bottom:.5rem}
+.reading-order ol{padding-left:1.3rem}
+.reading-order li{margin-bottom:.3rem;font-size:.9rem}.reading-order li strong{color:var(--blue-d)}
+.md-article{background:var(--white);border:1px solid #e2e8f0;border-radius:10px;padding:2rem 2.2rem;margin-top:1rem;line-height:1.85}
+.md-article h1{font-size:1.6rem;color:var(--dark);border-bottom:2px solid var(--blue);padding-bottom:.5rem;margin-bottom:1.2rem}
+.md-article h2{font-size:1.25rem;color:var(--blue-d);margin-top:2rem;margin-bottom:.7rem;padding-bottom:.3rem;border-bottom:1px solid #e2e8f0}
+.md-article h3{font-size:1.05rem;color:var(--dark);margin-top:1.4rem;margin-bottom:.5rem}
+.md-article p{margin-bottom:.8rem}
+.md-article ul,.md-article ol{padding-left:1.5rem;margin-bottom:.8rem}
+.md-article li{margin-bottom:.3rem}
+.md-article strong{color:var(--blue-d)}
+.md-article code{background:var(--blue-l);color:var(--blue-d);padding:.15em .4em;border-radius:4px;font-size:.9em}
+.md-article blockquote{border-left:3px solid var(--blue-m);padding:.5rem 1rem;margin:1rem 0;background:var(--blue-l);border-radius:0 6px 6px 0}
+.md-article table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+.md-article th{background:var(--blue);color:var(--white);padding:.55rem .8rem;text-align:left}
+.md-article td{padding:.5rem .8rem;border-bottom:1px solid #e2e8f0}
+.md-article tr:nth-child(even) td{background:var(--blue-l)}
+.md-article hr{border:none;border-top:1px solid #e2e8f0;margin:1.5rem 0}
+.md-article .MathJax{font-size:1.05em!important}
+mjx-container[display="true"]{margin:1rem 0!important;overflow-x:auto}
+/* slideshow */
+.slideshow{position:relative;background:#0f172a;border-radius:12px;overflow:hidden;user-select:none;margin-bottom:1rem}
+.slideshow-main{position:relative;display:flex;align-items:center;justify-content:center;min-height:420px;padding:1rem}
+.slideshow-main img{max-width:100%;max-height:72vh;border-radius:6px;box-shadow:0 4px 24px rgba(0,0,0,.4);transition:opacity .25s}
+.slideshow-main img.fade{opacity:0}
+.ss-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:48px;height:48px;border:none;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:background .15s}
+.ss-arrow:hover{background:rgba(255,255,255,.3)}
+.ss-arrow.left{left:.8rem}
+.ss-arrow.right{right:.8rem}
+.ss-counter{text-align:center;color:rgba(255,255,255,.7);font-size:.82rem;padding:.4rem 0 .2rem;font-variant-numeric:tabular-nums}
+.ss-title{text-align:center;color:rgba(255,255,255,.9);font-size:.95rem;font-weight:600;padding:0 1rem .6rem}
+.ss-thumbs{display:flex;gap:6px;padding:.5rem 1rem .8rem;overflow-x:auto;justify-content:center;flex-wrap:wrap}
+.ss-thumb{width:80px;height:45px;border-radius:4px;overflow:hidden;cursor:pointer;border:2px solid transparent;opacity:.5;transition:all .15s;flex-shrink:0}
+.ss-thumb:hover{opacity:.8}
+.ss-thumb.active{border-color:var(--blue);opacity:1;box-shadow:0 0 0 2px rgba(37,99,235,.4)}
+.ss-thumb img{width:100%;height:100%;object-fit:cover}
+.ss-hint{text-align:center;color:rgba(255,255,255,.35);font-size:.72rem;padding:0 0 .6rem}
+/* keyboard focus */
+.slideshow:focus{outline:2px solid var(--blue);outline-offset:2px}
+/* figures */
+.fig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.2rem;margin:1.5rem 0}
+.fig-card{background:var(--white);border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;transition:box-shadow .2s}
+.fig-card:hover{box-shadow:0 4px 16px rgba(37,99,235,.12)}
+.fig-card img{width:100%;display:block;cursor:pointer}
+.fig-card .caption{padding:.8rem 1rem;font-size:.85rem;color:var(--sub)}
+.dl-btn{display:inline-block;background:var(--blue);color:var(--white);padding:.55rem 1.8rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem;transition:background .15s;margin-top:.6rem}
+.dl-btn:hover{background:var(--blue-d)}
+.lightbox{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);justify-content:center;align-items:center;cursor:zoom-out}
+.lightbox.show{display:flex}
+.lightbox img{max-width:92vw;max-height:90vh;border-radius:8px}
+.footer{text-align:center;padding:2rem;color:var(--light);font-size:.8rem}
+@media(max-width:640px){.hero h1{font-size:1.6rem}.md-article{padding:1.2rem 1rem}.container{padding:1rem}.slides-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>GENESIS</h1>
+  <div class="sub">采样阶段结构约束的生成建模研究<br>不重训练主模型，在采样过程中通过显式投影控制生成轨迹</div>
+  <div class="badge">阶段性汇报材料 &middot; 2026-04</div>
+</div>
+
+<div class="nav-bar">
+  <button class="active" data-tab="overview">总览</button>
+  <button data-tab="ppt">PPT 汇报</button>
+  <button data-tab="high-school">讲解一：高中版</button>
+  <button data-tab="undergrad">讲解二：本科版</button>
+  <button data-tab="grad">讲解三：研究生版</button>
+  <button data-tab="figures">实验图表</button>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section active" id="sec-overview">
+  <h2 style="font-size:1.3rem;color:var(--dark);margin-bottom:.6rem">项目材料导航</h2>
+  <p style="color:var(--sub);margin-bottom:1.5rem">本页面包含 GENESIS 项目的全套讲解与汇报材料，按深度分为三级讲解，另有 20 页 PPT 汇报和全部实验图表。</p>
+
+  <div class="card-grid">
+    <div class="card" onclick="switchTab('ppt')">
+      <div class="num">PPT</div><h3>汇报 PPT（20 页）</h3>
+      <p>极简蓝白风格，含 LaTeX 公式和实验数据。点击可在线浏览每一页。</p>
+    </div>
+    <div class="card" onclick="switchTab('high-school')">
+      <div class="num">LEVEL 1</div><h3>讲解（一）高中版</h3>
+      <p>零公式纯直觉，先让脑子里有画面。适合第一次接触项目时阅读。</p>
+    </div>
+    <div class="card" onclick="switchTab('undergrad')">
+      <div class="num">LEVEL 2</div><h3>讲解（二）本科版</h3>
+      <p>把直觉变成数学公式，带实验数据表格，建立定量理解。</p>
+    </div>
+    <div class="card" onclick="switchTab('grad')">
+      <div class="num">LEVEL 3</div><h3>讲解（三）研究生版</h3>
+      <p>完整数学推导，约束算子的理论地位分析，可直接讨论。</p>
+    </div>
+    <div class="card" onclick="switchTab('figures')">
+      <div class="num">图表</div><h3>实验图表</h3>
+      <p>所有实验结果可视化：鲁棒性、多约束、Hu 矩、对称性、消融实验。</p>
+    </div>
+  </div>
+
+  <div class="reading-order">
+    <h3>建议阅读顺序</h3>
+    <ol>
+      <li>先浏览 <strong>PPT 汇报</strong> — 快速了解全貌（2 分钟）</li>
+      <li>再读 <strong>讲解（一）高中版</strong> — 建立直觉画面</li>
+      <li>再读 <strong>讲解（二）本科版</strong> — 理解公式和数据</li>
+      <li>最后读 <strong>讲解（三）研究生版</strong> — 掌握理论细节和边界</li>
+      <li>需要具体实验数据时，查看 <strong>实验图表</strong></li>
+    </ol>
+  </div>
+
+  <div style="background:var(--white);border:1px solid #e2e8f0;border-radius:10px;padding:1.5rem 1.8rem;margin-top:1.5rem">
+    <h3 style="color:var(--dark);font-size:1rem;margin-bottom:.8rem">核心问题</h3>
+    <p style="font-size:1.05rem;color:var(--blue-d);font-weight:600">
+      给定已训练的 Conditional Flow Matching 模型，能否在采样阶段加入结构约束，让样本既像真实数据，又遵守物理/结构规律？
+    </p>
+    <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px;background:var(--blue-l);border-radius:8px;padding:.8rem 1rem">
+        <div style="font-size:.75rem;color:var(--blue);font-weight:700">已经比较稳的结论</div>
+        <div style="font-size:.85rem;margin-top:.3rem">采样期硬投影路线可行；单一约束可精确满足；多约束有真实的质量代价</div>
+      </div>
+      <div style="flex:1;min-width:200px;background:#fef2f2;border-radius:8px;padding:.8rem 1rem">
+        <div style="font-size:.75rem;color:#b91c1c;font-weight:700">还在探索的方向</div>
+        <div style="font-size:.85rem;margin-top:.3rem">不是所有约束都不伤质量；多约束组合的最优策略；更复杂数据验证</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PPT -->
+<div class="section" id="sec-ppt">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.8rem">
+    <h2 style="font-size:1.3rem;color:var(--dark)">汇报 PPT（20 页）</h2>
+    <a class="dl-btn" href="genesis_teacher_report.pptx" download>下载 PPTX 源文件</a>
+  </div>
+  <div class="slideshow" id="slideshow" tabindex="0">
+    <div class="slideshow-main">
+      <button class="ss-arrow left" onclick="ssGo(-1)" aria-label="上一页">&#10094;</button>
+      <img id="ssImg" src="slides/slide_01.png" alt="Slide">
+      <button class="ss-arrow right" onclick="ssGo(1)" aria-label="下一页">&#10095;</button>
+    </div>
+    <div class="ss-title" id="ssTitle">封面：GENESIS</div>
+    <div class="ss-counter" id="ssCounter">1 / 20</div>
+    <div class="ss-thumbs" id="ssThumbs"></div>
+    <div class="ss-hint">← → 键翻页 &middot; 点击缩略图跳转 &middot; 点击幻灯片放大</div>
+  </div>
+</div>
+
+<!-- MARKDOWN SECTIONS -->
+<div class="section" id="sec-high-school"><div class="md-article" id="md-high-school"></div></div>
+<div class="section" id="sec-undergrad"><div class="md-article" id="md-undergrad"></div></div>
+<div class="section" id="sec-grad"><div class="md-article" id="md-grad"></div></div>
+
+<!-- FIGURES -->
+<div class="section" id="sec-figures">
+  <h2 style="font-size:1.3rem;color:var(--dark);margin-bottom:.3rem">实验图表</h2>
+  <p style="color:var(--sub);margin-bottom:1.2rem">点击图片可放大查看。</p>
+  <div class="fig-grid">
+    <div class="fig-card">
+      <img src="figures/figure8_robustness.png" alt="Figure 8" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 8</strong> — 鲁棒性实验：3 随机种子 + cadence 消融</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure9_constraint_quality.png" alt="Figure 9" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 9</strong> — 多约束质量对比：ink + centroid + tv</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure6_hu_moments.png" alt="Figure 6" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 6</strong> — Hu 矩约束：约束和质量同时改善（双赢）</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure10_symmetry_quality.png" alt="Figure 10" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 10</strong> — 对称性约束：数学完美但语义代价明显</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure11_order_ablation.png" alt="Figure 11" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 11</strong> — 多约束顺序消融：顺序显著影响结果</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure12_multi_cadence.png" alt="Figure 12" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 12</strong> — 多约束频率消融：高频 centroid 是瓶颈</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure7_symmetry.png" alt="Figure 7" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 7</strong> — 对称约束生成样本对比</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure5_multi_constraint.png" alt="Figure 5" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 5</strong> — 多约束可视化对比</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure3_lambda_sweep.png" alt="Figure 3" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 3</strong> — 软惩罚 λ 扫描</div>
+    </div>
+    <div class="fig-card">
+      <img src="figures/figure2_mnist.png" alt="Figure 2" onclick="openLB(this)">
+      <div class="caption"><strong>Figure 2</strong> — MNIST 基线生成结果</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<div class="lightbox" id="lightbox" onclick="closeLB()"><img id="lbImg" src="" alt=""></div>
+<div class="footer">GENESIS MNIST Project &middot; 阶段性汇报材料 &middot; 2026</div>
+
+<!-- INLINE MARKDOWN DATA -->
+<script id="data-high-school" type="text/markdown">
+# GENESIS 讲解（一）
+## 把你当高中生来讲
+
+这份文档只有一个目标：先让你真正知道你在做什么，不追求术语完整，只追求脑子里有画面。
+
+## 1. 一句话先说清楚
+
+你现在做的事情，不是“让 AI 更会画数字”。
+
+你真正做的事情是：
+
+**让 AI 在画数字的时候，不只是看起来像数字，而且要遵守一些真实规律。**
+
+这些规律包括：
+
+- 黑色笔画总量不能乱飞
+- 图像重心不能乱跑
+- 图像不能过于毛刺
+- 某些形状统计量要接近真实数字
+- 有些数字应该更对称
+
+普通生成模型只关心“像不像”。
+你的方法 GENESIS 关心“像不像”和“守不守规矩”。
+
+## 2. 为什么这件事值得做
+
+想象老师让两个同学画数字“0”。
+
+- 第一个同学画出来像 0，但特别偏、特别黑、特别歪
+- 第二个同学画出来既像 0，又保持了正常的黑白比例和位置结构
+
+如果你只是肉眼一瞥，两个都可能算“像”。
+但如果你要拿这些图去做研究、做数据增强、做后续科学分析，第二种才更可靠。
+
+所以你的核心思想不是“多生成一些图”，而是：
+
+**生成结果要带结构，带规律，带约束。**
+
+## 3. 普通生成模型在干什么
+
+你现在的基础模型，可以理解成：
+
+1. 先拿到一团纯噪声
+2. 然后一步一步把噪声推成数字
+3. 每一步都问神经网络：“下一小步应该往哪里走？”
+4. 最后得到一张 28×28 的手写数字图
+
+这个过程有点像：
+
+- 开始是一团雪花点
+- 然后慢慢长出轮廓
+- 再长出笔画
+- 最后变成一张数字图
+
+这个基础模型本身已经会“生成数字”。
+GENESIS 不是推翻它，而是在它每走一步之后，加一个“纠偏动作”。
+
+## 4. GENESIS 到底在做什么
+
+最朴素地说：
+
+**每走一步，就检查一下现在这张图有没有违反规则；如果违反了，就立刻拉回去。**
+
+所以整个流程是：
+
+1. 模型先按自己的本能走一步
+2. 然后我们检查规则
+3. 如果不满足，就做一个数学上的“投影”或“修正”
+4. 再进入下一步
+
+你可以把它理解成：
+
+- 普通模型像一个会开车但不太守道的人
+- GENESIS 相当于给车加了“车道保持”和“实时纠偏”
+
+关键不是最后才修一次，而是一路都修。
+
+## 5. 你现在比较的是三种方法
+
+为了讲清楚你的贡献，你一直在比较三件事。
+
+### 方法 A：完全不管
+
+模型自己生成，最后只做很基础的截断，让像素别超范围。
+
+特点：
+
+- 最自由
+- 但也最容易乱
+
+### 方法 B：轻轻提醒
+
+如果它违反约束，就给它一个“惩罚”或者“提醒”，让它往回一点点。
+
+特点：
+
+- 比 A 更守规矩
+- 但守不到特别准
+- 而且提醒太轻没用，提醒太重又可能把图搞坏
+
+### 方法 C：GENESIS 硬投影
+
+每一步后，直接把结果拉回满足约束的位置。
+
+特点：
+
+- 约束满足得最准
+- 没有那么依赖调参数
+- 更像“强制校正”
+
+## 6. 你研究里的五类规则，分别在说什么
+
+### 6.1 墨水量
+
+把一张图里所有黑色深浅加起来，就是总墨水量。
+
+直觉上：
+
+- 数字 1 应该比较瘦，墨水少
+- 数字 8 应该笔画多，墨水多
+
+如果模型画出来的“1”墨水量像“8”那么多，那就很奇怪。
+
+### 6.2 质心
+
+把每个黑色像素看成一点点重量，整张图会有一个“重心”。
+
+如果一个数字明明应该在图中间，结果重心跑到角落，就说明它结构不对。
+
+### 6.3 总变差（TV）
+
+这个词听起来难，但你先只记一句：
+
+**它在衡量图像是不是太毛刺、太碎。**
+
+如果相邻像素跳得很厉害，图像就很粗糙，TV 就会很大。
+
+### 6.4 Hu 矩
+
+这是一种“形状统计量”。
+
+不用先记公式，你先把它理解成：
+
+**它不是看某一个像素，而是在看整张图的整体形状特征。**
+
+比如这个数字更圆一些，还是更细长一些，Hu 矩会反映出来。
+
+### 6.5 对称性
+
+比如数字 0 和 8，天然更接近左右对称、上下对称。
+
+如果模型生成的 0 明显歪斜，那从结构上就不够像。
+
+## 7. 你的实验到底说明了什么
+
+到目前为止，最重要的结论不是“我们天下无敌”，而是下面几件很具体的事。
+
+### 7.1 对单一墨水约束，GENESIS 很强
+
+在最新的 3 个随机种子实验里：
+
+- A 的平均违反量大约是 `193.57`
+- B 降到 `8.29`
+- C 直接降到 `5.2e-06`
+
+这说明：
+
+- B 有帮助
+- 但 C 基本上是“压到机器精度”
+
+而且质量代理分类器的准确率：
+
+- A 是 `0.450`
+- B 是 `0.848`
+- C 是 `0.837`
+
+这说明 C 并没有为了满足约束，把图完全搞坏。
+
+### 7.2 约束不是越勤快越好，而是轨迹会受影响
+
+你做了一个很重要的实验：
+
+- 每一步都投影
+- 每 2 步投影一次
+- 每 5 步投影一次
+- 每 10 步投影一次
+
+最后会发现：
+
+- 最终约束几乎都能满足
+- 但投影越稀，图像质量越差
+
+这说明一件很关键的事：
+
+**不是只看终点满足约束就够了，中间怎么走也很重要。**
+
+### 7.3 多个约束一起上，会更难
+
+当你把墨水、质心、TV 等多个约束一起加上去时：
+
+- 约束违反确实显著下降
+- 但图像质量也会受到更明显的影响
+
+这非常真实，也非常重要。
+
+因为它告诉你：
+
+**GENESIS 不是“免费午餐”，多约束组合会有代价。**
+
+### 7.4 Hu 约束是当前一个很亮眼的点
+
+Hu 那组实验里，你看到的不是“约束更强但质量更差”。
+
+恰恰相反：
+
+- Hu 误差明显下降
+- 质量代理分类器准确率还从 `0.372` 升到 `0.700`
+
+这说明某些结构约束不是在破坏生成，反而可能在帮助模型生成更像样的数字。
+
+### 7.5 对称性实验说明“严格满足”可能会伤语义
+
+对 0 和 8 做强对称约束后：
+
+- 对称误差几乎被压到 0
+- 但这两个数字的可识别性下降了
+
+这说明：
+
+**数学上更完美，不一定视觉上更自然。**
+
+这是非常适合讲给老师听的一个认识升级。
+
+## 8. 你这项研究现在最核心的认识
+
+如果你现在要把整个项目压缩成三句话，你可以这样说：
+
+1. 我在研究生成模型能不能在采样阶段被“实时拉回”到满足规则的状态。
+2. 对某些约束，这个想法非常有效，尤其是墨水量和部分形状约束。
+3. 但不同约束对生成质量的影响很不一样，所以真正的问题已经从“能不能约束”升级成“怎样约束得又准又自然”。
+
+## 9. 现在还不能说得太满的地方
+
+你一定要能分清楚“已经证明的”和“还在探索的”。
+
+### 已经比较稳的
+
+- 采样阶段硬投影这条路线是能工作的
+- 单一约束可以被压得非常准
+- 多约束组合确实会出现质量代价
+- order 和 cadence 会影响结果
+
+### 还不能吹过头的
+
+- 不能说所有约束都不会损伤质量
+- 不能说已经建立了完整理论
+- 不能说所有投影都是严格精确正交投影
+- 不能说在更大更复杂数据上已经验证完成
+
+## 10. 读完这一版后，你脑子里应该留下什么
+
+先不要记公式，先记这个画面：
+
+- 有一个模型，在把噪声慢慢变成数字
+- 每走一步，它都可能偏
+- GENESIS 就是在每一步后把它拉回“守规矩”的位置
+- 然后你再比较：不拉回、轻轻提醒、强制拉回，结果到底差多少
+
+这就是你整个研究的最核心骨架。
+
+如果这一版你已经顺了，下一步就读 `genesis_explain_undergrad.md`。
+
+</script>
+<script id="data-undergrad" type="text/markdown">
+# GENESIS 讲解（二）
+## 把你当本科生来讲
+
+这份文档的目标，是把直觉版变成数学版，但仍然尽量不把公式写得过密。
+
+---
+
+## 1. 问题的数学化
+
+一张 MNIST 图像可以写成向量
+
+$$
+x \in [0,1]^{784}
+$$
+
+这里每个分量代表一个像素灰度。生成模型的目标，是学习每个数字类别的分布
+
+$$
+p_{\text{data}}(x \mid c), \quad c \in \{0,\dots,9\}.
+$$
+
+你的问题不是“怎么从头训练一个更强的生成模型”，而是：
+
+**在一个已经训练好的生成模型上，能否在采样阶段显式加入结构约束？**
+
+这类约束写成集合就是
+
+$$
+M = \{x : g(x)=0 \text{ 或 } g(x)\le 0\}.
+$$
+
+例如：
+
+- 墨水量约束：$\sum_i x_i = S_c$
+- 像素范围约束：$0 \le x_i \le 1$
+- TV 约束：$\mathrm{TV}(x)\le \tau_c$
+
+---
+
+## 2. 基础模型：Conditional Flow Matching
+
+你的基础生成模型是条件流匹配。它学习一个速度场
+
+$$
+v_\theta(x,t,c),
+$$
+
+其中：
+
+- $x$ 是当前图像状态
+- $t \in [0,1]$ 是时间
+- $c$ 是类别标签
+
+采样时，从噪声出发，按 Euler 法更新：
+
+$$
+x_{k+1} = x_k + \Delta t \, v_\theta(x_k, t_k, c).
+$$
+
+直觉上，这个模型在回答：
+
+“现在这张图如果想慢慢变成一个数字，下一小步应该往哪里走？”
+
+---
+
+## 3. 你的三种比较方法
+
+为了证明 GENESIS 的意义，你一直在对比三种采样方式。
+
+### 3.1 方法 A：无约束采样
+
+$$
+x_{k+1}^{(A)} = \mathrm{clip}\big(x_k + \Delta t \, v_\theta(x_k,t_k,c),\, 0,1\big)
+$$
+
+只保证像素不要超范围，不主动满足结构约束。
+
+### 3.2 方法 B：软惩罚修正
+
+$$
+x_{k+1}^{(B)} = x_k + \Delta t \, v_\theta(x_k,t_k,c) - \lambda \nabla_x L_{\text{constraint}}(x_k)
+$$
+
+它的思想是：如果违反约束，就沿着“减少违反”的方向推回去。
+
+问题在于：
+
+- $\lambda$ 太小，约束压不住
+- $\lambda$ 太大，会把原本学到的生成轨迹带偏
+
+### 3.3 方法 C：GENESIS 硬投影
+
+$$
+x_{k+1}^{(C)} = \Pi_M\Big(x_k + \Delta t \, v_\theta(x_k,t_k,c)\Big)
+$$
+
+这里的 $\Pi_M$ 表示“拉回约束集合”的操作。
+
+这就是 GENESIS 的核心。
+
+---
+
+## 4. 为什么方法 C 和方法 B 在本质上不一样
+
+方法 B 是“尽量往约束方向靠”。
+
+方法 C 是“直接回到约束集合上”。
+
+所以它们最大的区别不是算法细节，而是目标不同：
+
+- B：近似满足
+- C：显式满足
+
+如果某个约束有明确可计算的投影算子，那么 C 在理论上就更干净，也更不依赖超参数。
+
+---
+
+## 5. 你现在手里有哪些约束
+
+## 5.1 墨水量约束
+
+定义：
+
+$$
+\sum_{i=1}^{784} x_i = S_c
+$$
+
+其中 $S_c$ 是该类别在真实数据中的平均墨水量。
+
+这类约束最漂亮，因为它有一个很清晰的投影目标：
+
+$$
+\min_y \frac{1}{2}\|y-x\|_2^2 \quad \text{s.t. } 0\le y_i \le 1,\ \sum_i y_i = S_c.
+$$
+
+也就是 capped simplex projection。
+
+## 5.2 质心约束
+
+把图像每个像素值当作质量，计算重心：
+
+$$
+c_x(x)=\frac{\sum_{i,j} j x_{ij}}{\sum_{i,j} x_{ij}}, \quad
+c_y(x)=\frac{\sum_{i,j} i x_{ij}}{\sum_{i,j} x_{ij}}.
+$$
+
+目标是把图像平移到目标质心。你的实现不是严格解析投影，而是通过双线性平移近似达到目标质心。
+
+## 5.3 TV 约束
+
+总变差是图像粗糙度指标：
+
+$$
+\mathrm{TV}(x)=\sum |x_{i+1,j}-x_{i,j}| + \sum |x_{i,j+1}-x_{i,j}|.
+$$
+
+如果 TV 太大，图像就会有很多毛刺和突变。你的实现通过 TV ball projection 把图像拉回到平滑度允许范围内。
+
+## 5.4 Hu 矩约束
+
+Hu 矩是图像整体形状的统计量。你当前主要用了两个：
+
+- $h_1$：更像“整体扩散程度”
+- $h_2$：更像“拉长程度和方向性”
+
+这里你做的不是解析闭式投影，而是一个基于 Adam 的优化式对齐过程，所以它更准确地说是：
+
+**optimization-based projection / approximate alignment**
+
+## 5.5 D2 对称约束
+
+对 0 和 8 这类近似双向对称的数字，你做的是群平均：
+
+$$
+P_{D2}(x)=\frac{1}{4}\big(x+H(x)+V(x)+R(x)\big)
+$$
+
+其中 $H,V,R$ 分别是水平翻转、垂直翻转和 180 度旋转。
+
+这类约束的好处是形式非常干净，而且是严格的线性投影。
+
+---
+
+## 6. 你新增实验之后，研究问题变得更清楚了
+
+你现在不只是看“违反量”，而是同时看：
+
+- 约束是否满足
+- 生成质量是否保持
+- 对不同随机种子是否稳定
+- 投影顺序和频率是否影响结果
+
+为了补上质量维度，你专门训练了一个轻量分类器作为质量代理，它在 MNIST 测试集上的准确率是 `98.44%`。
+
+这意味着它可以作为一个还算可靠的“数字像不像”的度量工具。
+
+---
+
+## 7. 最关键的一组主实验：单一墨水约束
+
+3 个随机种子下，结果是：
+
+| 方法 | 质量代理准确率 | intended confidence | 平均违反量 |
+|------|---------------|--------------------|-----------|
+| A | 0.450 | 0.430 | 193.57 |
+| B | 0.848 | 0.823 | 8.29 |
+| C | 0.837 | 0.822 | 5.2e-06 |
+
+这组结果说明三件事：
+
+1. 方法 C 在约束满足上远强于 B。
+2. 方法 C 的质量并没有明显输给 B。
+3. 在“单一简单约束”上，采样期硬投影是非常有竞争力的。
+
+---
+
+## 8. cadence ablation：为什么中间路径也重要
+
+你做了一个很关键的对比：同样是方法 C，但不是每一步都投影，而是隔几步投影一次。
+
+| 投影频率 | 准确率 | 平均违反量 |
+|---------|-------|-----------|
+| every 1 step | 0.837 | 4.9e-06 |
+| every 2 steps | 0.820 | 5.0e-06 |
+| every 5 steps | 0.785 | 5.0e-06 |
+| every 10 steps | 0.743 | 5.1e-06 |
+
+有意思的地方在于：
+
+- 最终违反量都差不多，因为最后都被拉回去了
+- 但质量随着投影变稀而明显下降
+
+这说明：
+
+**GENESIS 的作用不只是“终点修复”，而是“全过程轨迹整形”。**
+
+---
+
+## 9. 多约束实验：真实的难点出现了
+
+同时施加 ink、centroid、TV 等多个约束后：
+
+| 指标 | A | C |
+|------|---|---|
+| accuracy | 0.460 | 0.417 |
+| ink violation | 190.63 | 0.230 |
+| centroid x violation | 0.0123 | 0.00119 |
+| centroid y violation | 0.0144 | 0.00098 |
+| tv excess | 6.96 | 0.304 |
+
+这组结果非常重要，因为它说明：
+
+- 多约束确实能一起压下去
+- 但质量下降也更明显
+
+所以研究已经从“能不能约束”进化成“多约束如何组合得更合理”。
+
+---
+
+## 10. Hu 约束：当前最有潜力的一条线
+
+Hu 实验的结果很亮：
+
+| 指标 | A | C |
+|------|---|---|
+| accuracy | 0.372 | 0.700 |
+| h1 error | 0.275 | 0.0114 |
+| h2 error | 0.101 | 0.0102 |
+
+这说明：
+
+- 约束误差显著下降
+- 生成质量反而上升
+
+这个现象很值得继续追，因为它暗示：
+
+**某些“好的结构约束”可能会帮助生成轨迹进入更自然的区域。**
+
+---
+
+## 11. D2 对称约束：数学更完美，语义未必更自然
+
+对称性实验的结果是：
+
+| 指标 | A | C |
+|------|---|---|
+| overall accuracy | 0.450 | 0.422 |
+| 0/8 accuracy | 0.900 | 0.758 |
+| symmetry error | 0.138 | 1.8e-09 |
+
+所以你要记住这个非常重要的科研判断：
+
+**“约束满足得更精确”不自动等于“图像更自然”。**
+
+这是老师很可能会问到的一点。
+
+---
+
+## 12. order ablation：为什么顺序会影响结果
+
+最新的多约束顺序实验显示：
+
+| 顺序 | accuracy |
+|------|---------|
+| ink → centroid → tv | 0.417 |
+| centroid → ink → tv | 0.347 |
+| tv → ink → centroid | 0.267 |
+
+这告诉你：
+
+- 多个投影算子一般不交换
+- 顺序不同，轨迹不同，结果也不同
+
+也就是说，GENESIS 在多约束场景里不是一个“把投影随便叠起来就行”的系统，而是一个需要考虑算子组合结构的系统。
+
+---
+
+## 13. multi-cadence ablation：谁最伤质量
+
+你进一步分开看了不同约束的投影频率。
+
+结果是：
+
+- `all_dense`: accuracy = `0.507`
+- `sparse_centroid`: accuracy = `0.797`
+- `sparse_tv`: accuracy = `0.507`
+- `sparse_both`: accuracy = `0.800`
+
+这个结论很有研究味道：
+
+**在当前设置下，伤害质量的主要不是 TV，而是高频 centroid 投影。**
+
+这会直接指导下一步方法改进。
+
+---
+
+## 14. 你现在该如何定义自己的研究
+
+比较稳妥、也比较有力量的说法是：
+
+**我在研究一种采样期结构约束框架，它不改动主生成模型，而是在采样过程中通过显式投影控制生成轨迹。**
+
+当前已经看到三类现象：
+
+1. 有些约束可以几乎无代价地精确满足。
+2. 有些约束会带来明显质量代价。
+3. 多约束时，顺序和频率本身就是新的研究变量。
+
+---
+
+## 15. 接下来读研究生版时，重点看什么
+
+如果你已经能接受这一版，下一步要进入研究生版，重点就不再是“现象是什么”，而会变成：
+
+- 为什么 capped simplex 是一个标准投影问题
+- 为什么 soft penalty 必然有 tradeoff
+- 为什么 D2 群平均是正交投影
+- 为什么 order 和 cadence 可以从算子分裂角度理解
+- 为什么 Hu 和 centroid 在数学地位上不完全一样
+
+接下来读 `genesis_explain_grad.md`。
+
+</script>
+<script id="data-grad" type="text/markdown">
+# GENESIS 讲解（三）
+## 把你当研究生来讲
+
+这份文档的目标是把整个研究讲到“可以拿去和老师推敲”的程度。它不追求论文体的压缩，而追求逻辑完整、数学边界清楚、当前结果与限制对应明确。
+
+---
+
+## 1. 问题的正式表述
+
+我们考虑一个已训练的条件生成流
+
+$$
+\dot{x}(t) = v_\theta(x(t), t, c), \qquad x(0)\sim p_0,
+$$
+
+其中：
+
+- $x(t)\in \mathbb{R}^d$，这里 $d=784$
+- $c$ 是类别条件
+- $v_\theta$ 是由条件流匹配训练得到的速度场近似
+
+采样的离散 Euler 形式是
+
+$$
+x_{k+1/2} = x_k + \Delta t \, v_\theta(x_k,t_k,c).
+$$
+
+现在我们希望生成轨迹满足某类结构约束。形式上，给定约束集合
+
+$$
+M = \{x : g_i(x)=0,\ h_j(x)\le 0\},
+$$
+
+问题变成：
+
+**如何在不重训主模型 $v_\theta$ 的前提下，使离散采样轨迹尽可能位于 $M$ 上或其附近？**
+
+GENESIS 的回答是：在每个时间步的流更新后，显式作用一个约束算子。
+
+---
+
+## 2. 三种采样方式的统一写法
+
+### 2.1 Method A: unconstrained baseline
+
+$$
+x_{k+1}^{(A)} = C\big(x_k + \Delta t\, v_\theta(x_k,t_k,c)\big),
+$$
+
+其中 $C$ 仅表示基本的 box clamp 或范围截断。
+
+### 2.2 Method B: soft guidance / penalty
+
+$$
+x_{k+1}^{(B)} = x_k + \Delta t\, v_\theta(x_k,t_k,c)
+ - \lambda \nabla_x L_{\text{constraint}}(x_k).
+$$
+
+它本质上把约束问题转成了一个额外引导项问题。
+
+### 2.3 Method C: projection-based correction
+
+$$
+x_{k+1}^{(C)} = P\Big(x_k + \Delta t\, v_\theta(x_k,t_k,c)\Big),
+$$
+
+其中 $P$ 是投影或近似投影算子。对单约束可以写成 $P=\Pi_M$；对多约束可写成组合
+
+$$
+P = P_m \circ P_{m-1}\circ \cdots \circ P_1.
+$$
+
+这里已经埋下两个关键数学事实：
+
+1. 多算子组合一般不交换。
+2. 若部分算子只是近似投影，则系统更像“projected correction scheme”，而不是严格的单一正交投影。
+
+---
+
+## 3. 为什么 soft penalty 在结构上无法替代显式投影
+
+设我们只有一个等式约束
+
+$$
+g(x)=0.
+$$
+
+Method B 常见做法是定义
+
+$$
+L_{\text{constraint}}(x)=\frac{1}{2}g(x)^2,
+$$
+
+然后更新
+
+$$
+x^+ = x - \lambda \nabla L_{\text{constraint}}(x)
+    = x - \lambda g(x)\nabla g(x).
+$$
+
+对小步长做一阶展开：
+
+$$
+g(x^+) \approx g(x) + \nabla g(x)^\top (x^+-x)
+ = g(x) - \lambda g(x)\|\nabla g(x)\|^2.
+$$
+
+于是
+
+$$
+g(x^+) \approx g(x)\Big(1-\lambda \|\nabla g(x)\|^2\Big).
+$$
+
+这意味着：
+
+- 它在局部上只是把违反量乘了一个缩放因子
+- 除非一步刚好精确落到零点，否则仍然只是“更接近”
+- 当 $\lambda$ 增大时，修正项可能开始主导原始动力学
+
+所以 Method B 的 tradeoff 不是偶然现象，而是结构性现象：
+
+**你想用有限强度的梯度惩罚，去近似一个本来应该由几何可行性算子完成的动作。**
+
+---
+
+## 4. GENESIS 的核心可理解为“流更新 + 算子校正”
+
+把单步写成
+
+$$
+T_{\Delta t}(x)=x+\Delta t\,v_\theta(x,t,c),
+$$
+
+GENESIS 则是
+
+$$
+x_{k+1}=P\circ T_{\Delta t}(x_k).
+$$
+
+如果 $P=\Pi_M$ 是到闭凸集 $M$ 的正交投影，那么有标准性质：
+
+- 可行性：$\Pi_M(x)\in M$
+- 幂等性：$\Pi_M(\Pi_M(x))=\Pi_M(x)$
+- 非扩张性：$\|\Pi_M(x)-\Pi_M(y)\|_2\le \|x-y\|_2$
+
+如果每一步都做这件事，那么离散轨迹满足“每一步结束时都被拉回 $M$”。
+
+但这里必须立即加一句边界说明：
+
+**当前仓库里的不同约束并不都属于同一种数学地位。**
+
+---
+
+## 5. 五类约束算子的数学地位
+
+### 5.1 Capped simplex: 最标准、最干净的一类
+
+约束集合
+
+$$
+M_{\text{CS}}=\Big\{x\in \mathbb{R}^d: 0\le x_i\le 1,\ \sum_{i=1}^d x_i=S\Big\}.
+$$
+
+投影问题：
+
+$$
+\Pi_{M_{\text{CS}}}(y)
+=\arg\min_x \frac{1}{2}\|x-y\|_2^2
+\ \text{s.t.}\ 0\le x_i\le 1,\ \sum_i x_i=S.
+$$
+
+这是一个凸二次规划。写拉格朗日函数：
+
+$$
+\mathcal{L}(x,\tau,\mu,\nu)
+=\frac12\|x-y\|_2^2 + \tau\Big(\sum_i x_i-S\Big)
+-\sum_i \mu_i x_i + \sum_i \nu_i(x_i-1).
+$$
+
+KKT 条件给出
+
+$$
+x_i-y_i+\tau-\mu_i+\nu_i=0.
+$$
+
+结合互补松弛：
+
+- 若 $0<x_i<1$，则 $\mu_i=\nu_i=0$，所以 $x_i=y_i-\tau$
+- 若 $x_i=0$，则发生下界饱和
+- 若 $x_i=1$，则发生上界饱和
+
+因此解具有统一形式
+
+$$
+x_i^*=\operatorname{clip}(y_i-\tau,0,1).
+$$
+
+再由总和约束确定 $\tau$：
+
+$$
+f(\tau)=\sum_i \operatorname{clip}(y_i-\tau,0,1)=S.
+$$
+
+由于 $f(\tau)$ 单调递减，可用二分求解。这就是当前 `project_capped_simplex` 的核心。
+
+这类算子之所以重要，是因为它满足三件事：
+
+1. 约束清楚
+2. 最优化问题清楚
+3. 投影求解清楚
+
+所以它是当前 GENESIS 证据链里最 solid 的一条。
+
+### 5.2 D2 symmetry: 线性子空间上的正交投影
+
+设 $G=\{I,H,V,R\}$，分别为恒等、水平翻转、垂直翻转、180 度旋转，构成有限群。
+
+定义群平均算子
+
+$$
+P_G(x)=\frac{1}{|G|}\sum_{g\in G} g\cdot x.
+$$
+
+则对任意 $h\in G$，
+
+$$
+h\cdot P_G(x)
+ = \frac{1}{|G|}\sum_{g\in G} h\cdot g\cdot x
+ = \frac{1}{|G|}\sum_{g'\in G} g'\cdot x
+ = P_G(x),
+$$
+
+因为左乘只是对群元素重排。
+
+因此 $P_G(x)$ 落在 $G$-不变子空间上。再看幂等性：
+
+$$
+P_G(P_G(x)) = P_G(x).
+$$
+
+若把翻转和旋转看作欧氏空间中的正交变换，则群平均就是到不变子空间的正交投影。
+
+所以 D2 约束也是当前最干净的一类。
+
+### 5.3 Centroid shift: 实用近似，不是严格解析投影
+
+质心定义为
+
+$$
+c_x(x)=\frac{\sum_{i,j} jx_{ij}}{\sum_{i,j} x_{ij}},\qquad
+c_y(x)=\frac{\sum_{i,j} ix_{ij}}{\sum_{i,j} x_{ij}}.
+$$
+
+目标集合
+
+$$
+M_{\text{centroid}}
+=\{x: c_x(x)=c_x^*,\ c_y(x)=c_y^*\}.
+$$
+
+这个集合不是简单的线性子空间，也不是明显的闭凸集。代码里的实现不是去解
+
+$$
+\arg\min_{z\in M_{\text{centroid}}}\|z-x\|_2^2,
+$$
+
+而是：
+
+1. 计算当前质心
+2. 算出与目标质心的平移差
+3. 用双线性插值把图像整体平移过去
+
+因此更准确的说法是：
+
+**当前 `project_centroid` 是 translation-based correction，而不是已证明的正交投影。**
+
+这点在对老师讲时必须说清楚。
+
+### 5.4 TV ball: 近似数值投影，可视为求解一个经典凸问题
+
+TV 约束可写成
+
+$$
+M_{\text{TV}}=\{x:\operatorname{TV}(x)\le \tau\}.
+$$
+
+对应投影问题是
+
+$$
+\Pi_{M_{\text{TV}}}(y)
+=\arg\min_x \frac12\|x-y\|_2^2
+\ \text{s.t. } \operatorname{TV}(x)\le \tau.
+$$
+
+这是经典凸优化问题。代码采用的是 Chambolle 风格的数值算法，并对参数做二分搜索。本质上它是在用数值求解器逼近 TV ball 上的投影。
+
+所以从数学地位上讲，它比 centroid 更规范，但比 capped simplex 少了闭式表达。
+
+### 5.5 Hu moments: 不是正交投影，而是优化式形状对齐
+
+Hu 矩约束当前主要针对 $h_1,h_2$：
+
+$$
+\min_x \ \|h(x)-h^*\|_2^2 \quad \text{s.t. } 0\le x_i\le 1.
+$$
+
+代码做法是：
+
+1. 从当前图像初始化
+2. 对 moment error 做若干步 Adam
+3. 每步后 clamp 回像素范围
+
+因此它不是一个“已知集合上的正交投影”，更像是：
+
+$$
+P_{\text{Hu}}^{\text{approx}}(x)
+\approx \text{AdamSteps}\big(x;\ \|h(x)-h^*\|^2\big).
+$$
+
+这一点反而不该回避。因为研究上更有价值的说法是：
+
+**GENESIS 可以统一容纳 exact projection、numerical projection 和 optimization-based correction 三类算子。**
+
+这比硬把所有东西都称作“严格正交投影”更真实。
+
+---
+
+## 6. 多约束组合的数学本质：算子分裂而非单一投影
+
+若我们同时使用 ink、centroid、TV 三个算子，则单步更新可写成
+
+$$
+x_{k+1}
+= P_{\text{TV}}\circ P_{\text{centroid}}\circ P_{\text{ink}}
+\big(T_{\Delta t}(x_k)\big).
+$$
+
+除非这些投影到的是某类特殊的线性互补子空间，否则一般没有
+
+$$
+P_i P_j = P_j P_i.
+$$
+
+因此顺序会影响结果。你最新的 order ablation 正好给出了经验验证：
+
+- `ink -> centroid -> tv`: accuracy `0.417`
+- `centroid -> ink -> tv`: accuracy `0.347`
+- `tv -> ink -> centroid`: accuracy `0.267`
+
+这可以从两个角度理解：
+
+1. **非交换性**：先做哪个算子，会改变后续算子的输入几何位置。
+2. **信息损失累积**：若某一算子先作用就造成较大结构扭曲，后续算子只能在扭曲后的状态上继续修复。
+
+因此，多约束 GENESIS 更像一个 operator-splitting 设计问题，而不是单纯“堆更多约束”。
+
+---
+
+## 7. cadence 的意义：约束不仅影响终点，也影响路径
+
+考虑稀疏投影版本：
+
+$$
+x_{k+1}= \begin{cases}
+P(T_{\Delta t}(x_k)), & k\in \mathcal{K}, \\
+T_{\Delta t}(x_k), & k\notin \mathcal{K}.
+\end{cases}
+$$
+
+如果最终再做一次 cleanup projection，那么终点可能仍然满足约束，但中间轨迹会不同。
+
+你在单一墨水约束中看到：
+
+- every 1: accuracy `0.837`
+- every 2: accuracy `0.820`
+- every 5: accuracy `0.785`
+- every 10: accuracy `0.743`
+
+而最终 violation 都在 $10^{-6}$ 量级。
+
+这说明：
+
+**约束算子的价值不只在终点可行性，更在于它对整个离散流轨迹的逐步整形。**
+
+从数值分析角度看，这像是在比较两种不同的 splitting scheme：
+
+- 高密度修正：几乎每一步都在可行集附近演化
+- 低密度修正：大部分时间偏离可行集，最后再被强行拉回
+
+路径差异最终会反映为样本质量差异。
+
+---
+
+## 8. 最新实验结果该如何严谨解读
+
+### 8.1 单一 ink 约束
+
+3 个随机种子下：
+
+- A: accuracy `0.450`, violation `193.57`
+- B: accuracy `0.848`, violation `8.29`
+- C: accuracy `0.837`, violation `5.2e-06`
+
+这组结果支持的结论是：
+
+**对显式可投影的简单约束，采样时硬投影能够同时保持较高质量并实现几乎精确的可行性。**
+
+它不支持的结论是：
+
+- “所有约束都一样容易”
+- “所有质量代价都消失”
+
+### 8.2 多约束组合
+
+多约束时：
+
+- accuracy 从 `0.460` 降到 `0.417`
+- 但 ink / centroid / TV violation 都显著下降
+
+这组结果的科研意义不在于“全面胜利”，而在于：
+
+**多约束场景下已经出现真实 tradeoff，说明问题开始从原理验证进入方法设计。**
+
+### 8.3 Hu 约束
+
+Hu 结果中：
+
+- accuracy `0.372 -> 0.700`
+- $h_1$ error `0.275 -> 0.011`
+- $h_2$ error `0.101 -> 0.010`
+
+这是当前最值得继续深挖的结果之一，因为它提示：
+
+**某些高层结构统计约束，可能会把采样轨迹推向更语义自然的区域，而不仅仅是增加限制。**
+
+### 8.4 D2 symmetry
+
+对称误差几乎到机器精度：
+
+- A symmetry error `0.138`
+- C symmetry error `1.8e-09`
+
+但 0/8 的分类准确率从 `0.900` 降到 `0.758`。
+
+这说明：
+
+**数据分布中的“自然手写 0/8”并不等于严格 D2 不变子空间。**
+
+换句话说，真实分布和数学理想子空间之间本身存在距离。
+
+### 8.5 multi-cadence
+
+多约束 cadence 实验显示：
+
+- `all_dense`: accuracy `0.507`
+- `sparse_centroid`: accuracy `0.797`
+- `sparse_tv`: accuracy `0.507`
+- `sparse_both`: accuracy `0.800`
+
+这表明在当前 fast setting 下，**高频 centroid correction 是主要质量瓶颈**。它比 TV correction 更值得优先改造。
+
+---
+
+## 9. 这套研究当前最准确的理论定位
+
+如果要用研究语言压缩当前工作的定位，我建议这样说：
+
+**这是一个 sampling-time structure enforcement framework，其核心在于把已训练的生成流与一组显式约束算子进行离散交替组合，从而研究可行性、质量和轨迹几何之间的关系。**
+
+这里面已经比较可靠的有：
+
+- exact projection on capped simplex
+- exact group-averaging projection for D2 symmetry
+- numerical projection / correction on TV
+- optimization-based moment alignment on Hu
+
+因此 GENESIS 当前更像一个“统一框架 + 多类算子生态”，而不是一个所有部分都拥有同样理论纯度的单一定理系统。
+
+---
+
+## 10. 还没有完成的理论工作
+
+如果老师追问“理论上还缺什么”，比较诚实的回答是下面这些。
+
+### 10.1 连续时间极限
+
+当前大部分实验是离散 Euler + stepwise correction。更完整的理论问题是：
+
+- 当 $\Delta t \to 0$ 时，这个 scheme 对应什么极限动力系统？
+- 若 $P$ 是精确投影，能否得到某种 projected differential inclusion？
+
+### 10.2 分布层面的误差界
+
+现在我们主要测的是样本层面的 violation 与质量代理。更严格的问题是：
+
+- 投影后的边际分布与原始 flow 诱导分布差多少？
+- 这个偏差如何依赖于 $\Delta t$、投影频率、算子 Lipschitz 性？
+
+### 10.3 多算子组合的误差分析
+
+当前已经观察到顺序敏感。下一步理论问题自然是：
+
+- 能否给出 $P_m\circ \cdots \circ P_1$ 相对某个目标可行集的误差界？
+- order 对稳定性与偏差的影响能否写成 splitting error？
+
+### 10.4 approximate operators 的统一理论
+
+Hu 与 centroid 并不是严格正交投影，因此需要更一般的框架：
+
+- approximate projector
+- firmly nonexpansive 映射的近似版本
+- inexact proximal / inexact correction 的误差累积
+
+---
+
+## 11. 和老师对话时最重要的边界意识
+
+当前这项研究最忌讳两种说法：
+
+1. 把所有算子都说成“精确硬投影”
+2. 把所有实验都说成“证明了大一统理论”
+
+更准确、更强的说法是：
+
+- 我们已经验证：采样阶段结构校正是可行的，而且不同约束的表现有明显差异。
+- 我们已经观察：有的约束几乎零代价，有的约束会明显伤质量。
+- 我们已经发现：多约束的 order 和 cadence 本身构成新的研究维度。
+
+这种说法更稳，也更容易获得老师认可，因为它把“阶段性成果”和“下一步问题”切得很清楚。
+
+---
+
+## 12. 你现在真正拥有的研究问题
+
+经过这轮实验补强之后，你的研究核心已经不再只是
+
+“投影有没有用？”
+
+而是下面这个更成熟的问题：
+
+**对于已训练生成流，在采样阶段交替施加不同类型的结构约束算子时，哪些约束能提升物理一致性而不显著破坏语义质量？哪些约束会引入可预测的质量代价？这些代价如何受算子类型、顺序和施加频率控制？**
+
+这已经是一个很像研究问题的研究问题了。
+
+如果你要对老师做完整汇报，下一步就切到：
+
+- `genesis_teacher_report_doc.md`
+- `genesis_teacher_report_ppt_outline.md`
+
+</script>
+
+<script>
+/* ── slideshow data ── */
+var ssTitles=[
+  '封面：GENESIS','背景与方法概览','五类约束一览',
+  'Ink 墨水量：这是什么？','Ink 墨水量：数学定义与投影','Ink 墨水量：求解 + 实验结果',
+  'Centroid 质心：这是什么？','Centroid 质心：校正方法与数学地位',
+  'TV 总变差：这是什么？','TV 总变差：求解方法与实验',
+  'Hu 矩：这是什么？','Hu 矩：中心矩与归一化','Hu 矩：h\u2081 和 h\u2082 不变量','Hu 矩：求解方法与关键发现',
+  'D2 对称：这是什么？','D2 对称：群平均公式与证明','D2 对称：关键发现',
+  '实验结果总览','实验图表','总结与下一步'
+];
+var ssTotal=20, ssCur=0;
+
+function ssSrc(i){return 'slides/slide_'+(i<9?'0':'')+(i+1)+'.png';}
+
+/* build thumbnail strip */
+(function(){
+  var c=document.getElementById('ssThumbs');
+  for(var i=0;i<ssTotal;i++){
+    var d=document.createElement('div');
+    d.className='ss-thumb'+(i===0?' active':'');
+    d.dataset.idx=i;
+    d.innerHTML='<img src="'+ssSrc(i)+'" alt="'+(i+1)+'">';
+    d.addEventListener('click',(function(idx){return function(){ssJump(idx);};})(i));
+    c.appendChild(d);
+  }
+})();
+
+function ssUpdate(){
+  var img=document.getElementById('ssImg');
+  img.classList.add('fade');
+  setTimeout(function(){
+    img.src=ssSrc(ssCur);
+    img.onload=function(){img.classList.remove('fade');};
+    /* fallback if cached */
+    if(img.complete)img.classList.remove('fade');
+  },120);
+  document.getElementById('ssTitle').textContent=ssTitles[ssCur];
+  document.getElementById('ssCounter').textContent=(ssCur+1)+' / '+ssTotal;
+  document.querySelectorAll('.ss-thumb').forEach(function(t,i){t.classList.toggle('active',i===ssCur);});
+  /* scroll active thumb into view */
+  var at=document.querySelector('.ss-thumb.active');
+  if(at)at.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+function ssGo(dir){
+  ssCur=(ssCur+dir+ssTotal)%ssTotal;
+  ssUpdate();
+}
+
+function ssJump(idx){
+  ssCur=idx;
+  ssUpdate();
+}
+
+/* click main slide to open lightbox */
+document.getElementById('ssImg').addEventListener('click',function(){openLB(this);});
+
+/* ── markdown renderer ── */
+function renderMd(raw){
+  var b=[];
+  var t=raw.replace(/\$\$([\s\S]*?)\$\$/g,function(m){b.push(m);return '\n\nMBLK'+(b.length-1)+'E\n\n';});
+  t=t.replace(/\$([^\$\n]+?)\$/g,function(m){b.push(m);return 'MBLK'+(b.length-1)+'E';});
+  var h=marked.parse(t);
+  h=h.replace(/MBLK(\d+)E/g,function(_,i){return b[parseInt(i)];});
+  return h;
+}
+
+/* ── tab switching ── */
+function switchTab(name){
+  document.querySelectorAll('.nav-bar button').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});
+  document.querySelectorAll('.section').forEach(function(s){s.classList.toggle('active',s.id==='sec-'+name);});
+  var el=document.getElementById('md-'+name);
+  if(el&&!el.dataset.done){
+    var src=document.getElementById('data-'+name);
+    if(src){el.innerHTML=renderMd(src.textContent);el.dataset.done='1';if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([el]).catch(function(){});}
+  }
+  if(name==='ppt'){var ss=document.getElementById('slideshow');if(ss)ss.focus();}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.nav-bar button').forEach(function(btn){btn.addEventListener('click',function(){switchTab(btn.dataset.tab);});});
+
+/* ── lightbox ── */
+function openLB(img){document.getElementById('lbImg').src=img.src;document.getElementById('lightbox').classList.add('show');}
+function closeLB(){document.getElementById('lightbox').classList.remove('show');}
+
+/* ── keyboard ── */
+document.addEventListener('keydown',function(e){
+  if(document.getElementById('lightbox').classList.contains('show')){
+    if(e.key==='Escape')closeLB();
+    if(e.key==='ArrowLeft'){ssGo(-1);closeLB();}
+    if(e.key==='ArrowRight'){ssGo(1);closeLB();}
+    return;
+  }
+  var pptActive=document.getElementById('sec-ppt').classList.contains('active');
+  if(pptActive){
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();ssGo(-1);}
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '){e.preventDefault();ssGo(1);}
+  }
+});
+
+/* touch swipe support */
+(function(){
+  var ss=document.getElementById('slideshow'),sx=0,sy=0;
+  if(!ss)return;
+  ss.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  ss.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){dx<0?ssGo(1):ssGo(-1);}
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
