@@ -1,0 +1,49 @@
+{
+  "device": "mps",
+  "seed": 0,
+  "n_samples_1000_run": 1000,
+  "n_real_reference": 1000,
+  "sampling_batch": 50,
+  "n_reverse_steps": 1000,
+  "latent_shape": [
+    1,
+    8,
+    8
+  ],
+  "global_ink_target": 102.44,
+  "eps_mscore": 1.0,
+  "sample_wall_time_s": 105.88416790962219,
+  "sample_seconds_per_image": 0.1058841679096222,
+  "methods": [
+    {
+      "name": "DDPM-32samples",
+      "n_samples": 32,
+      "fid": 1160.1188443582525,
+      "mean_confidence": 0.789089560508728,
+      "mean_ink_violation_per_class": 27.199220657348633,
+      "m_score_per_class": 0.03125,
+      "source": "figure15_table.json"
+    },
+    {
+      "name": "DDPM-1000samples",
+      "n_samples": 1000,
+      "fid": 114.27983799405138,
+      "mean_confidence": 0.9299660921096802,
+      "mean_ink_violation": 28.116058349609375,
+      "m_score": 0.017000000923871994,
+      "pred_class_distribution": [
+        0.0860000029206276,
+        0.057999998331069946,
+        0.14800000190734863,
+        0.0989999994635582,
+        0.08900000154972076,
+        0.09399999678134918,
+        0.12300000339746475,
+        0.11400000005960464,
+        0.061000000685453415,
+        0.12800000607967377
+      ]
+    }
+  ],
+  "note": "Same DDPM + AE weights as task-017; only sample count differs (32 vs 1000). 32-sample row copied from figure15_table.json. The 1000-sample row uses the *global* ink target (102.44) rather than the per-class target used in task-017, so ink-violation numbers are not strictly comparable."
+}
