@@ -51,6 +51,7 @@ body{font-family:-apple-system,"PingFang SC","Noto Sans SC","Helvetica Neue",Ari
 .md-article td{padding:.5rem .8rem;border-bottom:1px solid #e2e8f0}
 .md-article tr:nth-child(even) td{background:var(--blue-l)}
 .md-article hr{border:none;border-top:1px solid #e2e8f0;margin:1.5rem 0}
+.md-article img{max-width:100%;height:auto;display:block;margin:1.2rem auto;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:zoom-in}
 .md-article .MathJax{font-size:1.05em!important}
 mjx-container[display="true"]{margin:1rem 0!important;overflow-x:auto}
 /* slideshow */
@@ -1837,6 +1838,10 @@ document.querySelectorAll('.nav-bar button').forEach(function(btn){btn.addEventL
 /* ── lightbox ── */
 function openLB(img){document.getElementById('lbImg').src=img.src;document.getElementById('lightbox').classList.add('show');}
 function closeLB(){document.getElementById('lightbox').classList.remove('show');}
+/* markdown image click -> lightbox */
+document.addEventListener('click',function(e){
+  if(e.target.tagName==='IMG' && e.target.closest('.md-article')){openLB(e.target);}
+});
 
 /* ── keyboard ── */
 document.addEventListener('keydown',function(e){
