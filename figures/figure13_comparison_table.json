@@ -1,0 +1,65 @@
+{
+  "device": "mps",
+  "seed": 0,
+  "n_samples_per_method": 1000,
+  "n_real_reference": 1000,
+  "fm_n_per_class": 100,
+  "fm_n_ode_steps": 50,
+  "soft_penalty_lambda": 0.3,
+  "eps_mscore": 1.0,
+  "ink_targets_per_class": {
+    "0": 135.9450728033073,
+    "1": 59.582936401220074,
+    "2": 116.7965024843757,
+    "3": 110.9596337315465,
+    "4": 95.15062528112007,
+    "5": 100.93952635719512,
+    "6": 107.64459345509128,
+    "7": 89.78971633545798,
+    "8": 117.72229167812401,
+    "9": 96.11051693722509
+  },
+  "global_mean_ink": 102.43781492821375,
+  "methods": [
+    {
+      "name": "AE+GMM",
+      "n_samples": 1000,
+      "fid": 54.38212392565629,
+      "mean_confidence": 0.9417405724525452,
+      "mean_ink_violation": 20.90263557434082,
+      "m_score": 0.03099999949336052
+    },
+    {
+      "name": "VAE",
+      "n_samples": 1000,
+      "fid": 151.5760623029123,
+      "mean_confidence": 0.8336778879165649,
+      "mean_ink_violation": 24.264863967895508,
+      "m_score": 0.019999999552965164
+    },
+    {
+      "name": "Unconstrained FM",
+      "n_samples": 1000,
+      "fid": 735.3149148099085,
+      "mean_confidence": 0.7823296785354614,
+      "mean_ink_violation": 195.31626892089844,
+      "m_score": 0.0
+    },
+    {
+      "name": "Soft-Penalty FM",
+      "n_samples": 1000,
+      "fid": 80.03003569965222,
+      "mean_confidence": 0.933096706867218,
+      "mean_ink_violation": 4.943038463592529,
+      "m_score": 0.1379999965429306
+    },
+    {
+      "name": "GENESIS FM",
+      "n_samples": 1000,
+      "fid": 67.2569623400691,
+      "mean_confidence": 0.9312593936920166,
+      "mean_ink_violation": 5.0811768232961185e-06,
+      "m_score": 1.0
+    }
+  ]
+}

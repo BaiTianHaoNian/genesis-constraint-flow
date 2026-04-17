@@ -1,0 +1,111 @@
+{
+  "device": "mps",
+  "seed": 0,
+  "n_samples_per_method": 1000,
+  "n_real_reference": 1000,
+  "methods": [
+    {
+      "name": "Ashu-AE",
+      "n_samples": 1000,
+      "fid": 1820.205292594955,
+      "mean_confidence": 0.5737761855125427,
+      "entropy_per_sample": 1.206992268562317,
+      "pred_class_entropy": 1.5224721431732178,
+      "pred_class_distribution": [
+        0.004000000189989805,
+        0.0,
+        0.15000000596046448,
+        0.17399999499320984,
+        0.027000000700354576,
+        0.0949999988079071,
+        0.01600000075995922,
+        0.01600000075995922,
+        0.4869999885559082,
+        0.03099999949336052
+      ]
+    },
+    {
+      "name": "Mahan-AE",
+      "n_samples": 1000,
+      "fid": 1725.4694545524887,
+      "mean_confidence": 0.6169558167457581,
+      "entropy_per_sample": 1.0713942050933838,
+      "pred_class_entropy": 1.8585149049758911,
+      "pred_class_distribution": [
+        0.0010000000474974513,
+        0.26899999380111694,
+        0.1459999978542328,
+        0.14399999380111694,
+        0.03700000047683716,
+        0.23600000143051147,
+        0.03400000184774399,
+        0.10199999809265137,
+        0.019999999552965164,
+        0.010999999940395355
+      ]
+    },
+    {
+      "name": "William-VAE",
+      "n_samples": 1000,
+      "fid": 1185.1528611181332,
+      "mean_confidence": 0.7114362716674805,
+      "entropy_per_sample": 0.8248238563537598,
+      "pred_class_entropy": 2.256563186645508,
+      "pred_class_distribution": [
+        0.08799999952316284,
+        0.05400000140070915,
+        0.11800000071525574,
+        0.14900000393390656,
+        0.057999998331069946,
+        0.09200000017881393,
+        0.08699999749660492,
+        0.09799999743700027,
+        0.14300000667572021,
+        0.11299999803304672
+      ]
+    },
+    {
+      "name": "GENESIS FM (ref)",
+      "n_samples": 1000,
+      "fid": 67.2569623400691,
+      "mean_confidence": 0.9312593936920166,
+      "entropy_per_sample": null,
+      "pred_class_entropy": null
+    }
+  ],
+  "meta": {
+    "device": "mps",
+    "seed": 0,
+    "ports": {
+      "Ashu-AE": {
+        "arch": "FC AE 784->256->128->256->784 (sigmoid)",
+        "latent_dim": 128,
+        "epochs": 25,
+        "batch": 128,
+        "lr": 0.001,
+        "loss": "MSE",
+        "wall_time_s": 64.782222032547
+      },
+      "Mahan-AE": {
+        "arch": "Conv+CAB [1,16,32], latent=64, reduction=8",
+        "latent_dim": 64,
+        "epochs": 10,
+        "batch": 64,
+        "lr": 0.0001,
+        "loss": "MSE",
+        "wall_time_s": 113.12439775466919
+      },
+      "William-VAE": {
+        "arch": "FC VAE 196->128(tanh)->{mu=8,sig=8}->128(tanh)->196(sig), dual-eps",
+        "latent_dim": 8,
+        "epochs": 20,
+        "batch": 32,
+        "lr": 0.002,
+        "loss": "BCE(sum)+KLD",
+        "input": "14x14 binarized @ >128/255",
+        "sampling_upsample": "bilinear 14->28",
+        "wall_time_s": 14.243634939193726
+      }
+    }
+  }
+}

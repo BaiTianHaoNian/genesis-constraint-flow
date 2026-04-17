@@ -1,0 +1,347 @@
+{
+  "device": "mps",
+  "seed": 0,
+  "n_per_class": 100,
+  "n_real_reference": 1000,
+  "eps_mscore": 1.0,
+  "eps_accept_rejection": 1.0,
+  "max_rounds_rejection": 20,
+  "batch_per_round_rejection": 10000,
+  "latent_opt_steps": 50,
+  "latent_opt_lr": 0.05,
+  "ink_targets_per_class": {
+    "0": 135.9450728033073,
+    "1": 59.582936401220074,
+    "2": 116.7965024843757,
+    "3": 110.9596337315465,
+    "4": 95.15062528112007,
+    "5": 100.93952635719512,
+    "6": 107.64459345509128,
+    "7": 89.78971633545798,
+    "8": 117.72229167812401,
+    "9": 96.11051693722509
+  },
+  "global_mean_ink": 102.43781492821375,
+  "variants": [
+    {
+      "name": "AE-A",
+      "n_samples": 1000,
+      "fid": 179.51367960451034,
+      "mean_confidence": 0.9497183561325073,
+      "mean_ink_violation": 5.260467332846019e-06,
+      "m_score": 1.0,
+      "wall_time_s": 0.10543370246887207
+    },
+    {
+      "name": "AE-B",
+      "n_samples": 1000,
+      "fid": 153.69468993833652,
+      "mean_confidence": 0.956242024898529,
+      "mean_ink_violation": 0.4798571765422821,
+      "m_score": 1.0,
+      "wall_time_s": 2.5909178256988525
+    },
+    {
+      "name": "AE-C",
+      "n_samples": 1000,
+      "fid": 439.6603443889471,
+      "mean_confidence": 0.9624077081680298,
+      "mean_ink_violation": 0.2718876898288727,
+      "m_score": 0.972000002861023,
+      "wall_time_s": 1.6073558330535889
+    },
+    {
+      "name": "VAE-A",
+      "n_samples": 1000,
+      "fid": 232.76723772524474,
+      "mean_confidence": 0.8916351795196533,
+      "mean_ink_violation": 5.80215464651701e-06,
+      "m_score": 1.0,
+      "wall_time_s": 0.06100296974182129
+    },
+    {
+      "name": "VAE-B",
+      "n_samples": 1000,
+      "fid": 145.94278116701025,
+      "mean_confidence": 0.9136872887611389,
+      "mean_ink_violation": 0.5026550889015198,
+      "m_score": 1.0,
+      "wall_time_s": 1.2823340892791748
+    },
+    {
+      "name": "VAE-C",
+      "n_samples": 1000,
+      "fid": 146.8064784905646,
+      "mean_confidence": 0.9199460744857788,
+      "mean_ink_violation": 0.842147171497345,
+      "m_score": 0.6959999799728394,
+      "wall_time_s": 1.3863801956176758
+    },
+    {
+      "name": "GENESIS FM (ref)",
+      "n_samples": 1000,
+      "fid": 67.2569623400691,
+      "mean_confidence": 0.9312593936920166,
+      "mean_ink_violation": 5.0811768232961185e-06,
+      "m_score": 1.0
+    }
+  ],
+  "meta": {
+    "AE-A": {
+      "method": "posthoc"
+    },
+    "AE-B": {
+      "method": "rejection",
+      "eps_accept": 1.0,
+      "max_rounds": 20,
+      "batch_per_round": 10000,
+      "per_digit": {
+        "0": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 260,
+          "acceptance_rate": 0.026,
+          "shortfall_filled": 0
+        },
+        "1": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 531,
+          "acceptance_rate": 0.0531,
+          "shortfall_filled": 0
+        },
+        "2": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 263,
+          "acceptance_rate": 0.0263,
+          "shortfall_filled": 0
+        },
+        "3": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 260,
+          "acceptance_rate": 0.026,
+          "shortfall_filled": 0
+        },
+        "4": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 354,
+          "acceptance_rate": 0.0354,
+          "shortfall_filled": 0
+        },
+        "5": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 251,
+          "acceptance_rate": 0.0251,
+          "shortfall_filled": 0
+        },
+        "6": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 286,
+          "acceptance_rate": 0.0286,
+          "shortfall_filled": 0
+        },
+        "7": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 314,
+          "acceptance_rate": 0.0314,
+          "shortfall_filled": 0
+        },
+        "8": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 225,
+          "acceptance_rate": 0.0225,
+          "shortfall_filled": 0
+        },
+        "9": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 360,
+          "acceptance_rate": 0.036,
+          "shortfall_filled": 0
+        }
+      }
+    },
+    "AE-C": {
+      "method": "latent_opt",
+      "n_steps": 50,
+      "lr": 0.05,
+      "per_digit": {
+        "0": {
+          "mean_final_residual": 0.2990710437297821,
+          "max_final_residual": 1.9401397705078125
+        },
+        "1": {
+          "mean_final_residual": 0.17129208147525787,
+          "max_final_residual": 0.6042366027832031
+        },
+        "2": {
+          "mean_final_residual": 0.23703743517398834,
+          "max_final_residual": 1.6338119506835938
+        },
+        "3": {
+          "mean_final_residual": 0.23101706802845,
+          "max_final_residual": 1.69512939453125
+        },
+        "4": {
+          "mean_final_residual": 0.2320909947156906,
+          "max_final_residual": 0.8905105590820312
+        },
+        "5": {
+          "mean_final_residual": 0.3743028938770294,
+          "max_final_residual": 1.09698486328125
+        },
+        "6": {
+          "mean_final_residual": 0.2279708832502365,
+          "max_final_residual": 1.0084609985351562
+        },
+        "7": {
+          "mean_final_residual": 0.2037520557641983,
+          "max_final_residual": 0.9851531982421875
+        },
+        "8": {
+          "mean_final_residual": 0.46511000394821167,
+          "max_final_residual": 2.7017364501953125
+        },
+        "9": {
+          "mean_final_residual": 0.27723342180252075,
+          "max_final_residual": 0.906890869140625
+        }
+      }
+    },
+    "VAE-A": {
+      "method": "posthoc"
+    },
+    "VAE-B": {
+      "method": "rejection",
+      "eps_accept": 1.0,
+      "max_rounds": 20,
+      "batch_per_round": 10000,
+      "per_digit": {
+        "0": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 226,
+          "acceptance_rate": 0.0226,
+          "shortfall_filled": 0
+        },
+        "1": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 330,
+          "acceptance_rate": 0.033,
+          "shortfall_filled": 0
+        },
+        "2": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 176,
+          "acceptance_rate": 0.0176,
+          "shortfall_filled": 0
+        },
+        "3": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 205,
+          "acceptance_rate": 0.0205,
+          "shortfall_filled": 0
+        },
+        "4": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 225,
+          "acceptance_rate": 0.0225,
+          "shortfall_filled": 0
+        },
+        "5": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 236,
+          "acceptance_rate": 0.0236,
+          "shortfall_filled": 0
+        },
+        "6": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 236,
+          "acceptance_rate": 0.0236,
+          "shortfall_filled": 0
+        },
+        "7": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 290,
+          "acceptance_rate": 0.029,
+          "shortfall_filled": 0
+        },
+        "8": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 201,
+          "acceptance_rate": 0.0201,
+          "shortfall_filled": 0
+        },
+        "9": {
+          "rounds_used": 1,
+          "total_drawn": 10000,
+          "accepted": 253,
+          "acceptance_rate": 0.0253,
+          "shortfall_filled": 0
+        }
+      }
+    },
+    "VAE-C": {
+      "method": "latent_opt",
+      "n_steps": 50,
+      "lr": 0.05,
+      "per_digit": {
+        "0": {
+          "mean_final_residual": 0.7621936202049255,
+          "max_final_residual": 4.6766357421875
+        },
+        "1": {
+          "mean_final_residual": 0.7509767413139343,
+          "max_final_residual": 6.478328704833984
+        },
+        "2": {
+          "mean_final_residual": 0.9255929589271545,
+          "max_final_residual": 5.79864501953125
+        },
+        "3": {
+          "mean_final_residual": 0.8689853549003601,
+          "max_final_residual": 3.6775588989257812
+        },
+        "4": {
+          "mean_final_residual": 0.8467676043510437,
+          "max_final_residual": 7.766349792480469
+        },
+        "5": {
+          "mean_final_residual": 0.7564704418182373,
+          "max_final_residual": 4.1346893310546875
+        },
+        "6": {
+          "mean_final_residual": 0.8591403365135193,
+          "max_final_residual": 3.405517578125
+        },
+        "7": {
+          "mean_final_residual": 0.8184226751327515,
+          "max_final_residual": 5.2040252685546875
+        },
+        "8": {
+          "mean_final_residual": 1.0197815895080566,
+          "max_final_residual": 4.330284118652344
+        },
+        "9": {
+          "mean_final_residual": 0.8131444454193115,
+          "max_final_residual": 3.3433074951171875
+        }
+      }
+    }
+  }
+}
